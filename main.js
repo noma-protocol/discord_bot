@@ -32,7 +32,7 @@ const twitterClient = new TwitterApi({
 const serverIDs = config.serverIDs;
 
 // File path for persisting subscription data
-const dataFilePath = path.join(__dirname, 'subscriptionCodes.json');
+const dataFilePath = path.join(__dirname + 'data/', 'subscriptionCodes.json');
 
 // In-memory storage for subscription codes, loaded from disk
 let subscriptionCodes = loadSubscriptionCodes();
