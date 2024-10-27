@@ -30,6 +30,10 @@ const twitterClient = new TwitterApi({
 
 // List of server IDs to check for membership
 const serverIDs = config.serverIDs;
+const allowedChannelId = config.chanId;
+
+// Presale start date
+const presaleStartDate = new Date('2024-11-11T00:00:00Z'); // Set the presale start date
 
 // File path for persisting subscription data
 const dataFilePath = path.join(__dirname + 'data/', 'subscriptionCodes.json');
@@ -119,6 +123,21 @@ function isAddressAlreadyRegistered(address) {
     return Object.values(subscriptionCodes).some(subscription => subscription.address.toLowerCase() === address.toLowerCase());
 }
 
+// Function to get the time left until the presale starts
+function getTimeLeft() {
+    const now = new Date();
+    const diff = presaleStartDate - now;
+    if (diff <= 0) {
+        return 'The presale has already started!';
+    }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return `Time left until the presale starts: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
 // Event listener for when the client is ready
 client.once('ready', async () => {
     console.log('Logged in as ' + client.user.tag);
@@ -128,12 +147,51 @@ client.once('ready', async () => {
     } catch (error) {
         console.error('Failed to set status:', error);
     }
+
+    // Schedule the countdown to be sent to the #presale channel every 5 minutes
+    setInterval(async () => {
+        const channel = client.channels.cache.get(config.chanId);
+        if (channel) {
+            channel.send(getTimeLeft());
+        }
+    }, 60 * 60 * 1000); // 5 minutes in milliseconds    
 });
+
+// Function to assign a role to a user
+async function assignRoleToUser(message, roleName) {
+    // Find the role by name in the guild
+    const role = message.guild.roles.cache.find(r => r.name === roleName);
+    if (!role) {
+        message.reply(`Role "${roleName}" not found.`);
+        return;
+    }
+
+    // Find the member by the message author's ID
+    const member = message.guild.members.cache.get(message.author.id);
+    if (!member) {
+        message.reply('Member not found.');
+        return;
+    }
+
+    try {
+        // Add the role to the member
+        await member.roles.add(role);
+        message.reply(`Role "${roleName}" has been assigned to you.`);
+    } catch (error) {
+        console.error('Error assigning role:', error);
+        message.reply('There was an error assigning the role.');
+    }
+}
 
 // Event listener for when a message is received
 client.on('messageCreate', async (message) => {
     // Ignore messages from the bot itself
     if (message.author.bot) return;
+
+    // Check if the message was sent in the allowed channel
+    if (message.channel.id !== allowedChannelId) {
+        return; // Ignore messages from other channels
+    }
 
     const userId = message.author.id;
     const botMention = `<@${client.user.id}>`; // The bot's mention format
@@ -149,12 +207,13 @@ client.on('messageCreate', async (message) => {
         // Handle the "help" command
         if (command === 'help') {
             const helpMessage = `
-**Available Commands:**
-1. **help** - Displays this help message.
-2. **check servers** - (DM only) Checks if you have joined the specified servers.
-3. **check presale** - Shows the current progress of the presale.
-4. **subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only) Subscribe with your Twitter handle and Ethereum address.
-5. **check twitter** - (DM only) Check if your Twitter subscription has been verified.
+    **Available Commands:**
+    1. **help** - Displays this help message.
+    2. **check servers** - (DM only) Checks if you have joined the specified servers.
+    3. **check presale** - Shows the current progress of the presale.
+    4. **subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only) Subscribe with your Twitter handle and Ethereum address.
+    5. **check twitter** - (DM only) Check if your Twitter subscription has been verified.
+    6. **add role <role name>** - Assigns a specified role to you.
             `;
             message.reply(helpMessage);
             return;
@@ -250,12 +309,35 @@ client.on('messageCreate', async (message) => {
             } else {
                 message.reply('The "check twitter" command can only be used in a direct message.');
             }
-        } else {
-            // If the command is unrecognized, reply with a default message
-            message.reply('Unknown command. Type "help" for a list of available commands.');
+            return;
         }
+
+        // Handle the "add role" command
+        if (command.includes('add role')) {
+            if (!message.guild) { // Check if the message is in a DM
+                const roleName = command.slice('add role'.length).trim(); // Extract the role name from the command
+                if (!roleName) {
+                    message.reply('Please specify a role name.');
+                    return;
+                }
+                // Assign the role to the user
+                await assignRoleToUser(message, roleName);
+                return;
+            } else {
+                message.reply('The "check twitter" command can only be used in a direct message.');
+            }
+        }
+
+
+        // Handle the "time left" command
+        if (command === 'time left') {
+            message.reply(getTimeLeft());
+            return;
+        }
+
     }
 });
+
 
 
 // Function to check if the user's Twitter account has posted the code
