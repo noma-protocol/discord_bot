@@ -2,13 +2,13 @@
   "1219798412287938691": {
     "code": "8e6b239b",
     "twitterHandle": "0xSufist",
-    "verified": true,
-    "address": "0x0000000000000000000000000000000000000000"
+    "verified": false,
+    "address": "0x5Df089ff2eaB44684717D876077D8C3a7E951819"
   },
   "1250260269276332054": {
     "code": "05d51e83",
     "twitterHandle": "1e_18",
     "verified": false,
-    "address": "0x0000000000000000000000000000000000000000"
+    "address": "0x12e30FcC16B741a08cCf066074F0547F3ce79F32"
   }
 }

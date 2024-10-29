@@ -38,8 +38,30 @@ const presaleStartDate = new Date('2024-11-11T00:00:00Z'); // Set the presale st
 // File path for persisting subscription data
 const dataFilePath = path.join(__dirname + 'data/', 'subscriptionCodes.json');
 
+const triviaData = JSON.parse(fs.readFileSync(path.join(__dirname, 'trivia.json'), 'utf-8'));
+
+// Check if triviaData is an array and retrieve questions
+const triviaQuestions = triviaData[0]?.questions || [];
+const triviaRoleName = triviaData[0]?.roleName || 'Default Role Name';
+const triviaRoleColor = triviaData[0]?.roleColor || 9;
+const triviaRolePoints = triviaData[0]?.rolePoints || 1; // Default to 1 if not specified
+const userPoints = {}; // Track points per user
+
+// Function to select a random trivia question
+function getRandomTrivia() {
+    if (triviaQuestions.length === 0) {
+        return { question: 'No questions available', answer: '' };
+    }
+    const randomIndex = Math.floor(Math.random() * triviaQuestions.length);
+    return triviaQuestions[randomIndex];
+}
+
 // In-memory storage for subscription codes, loaded from disk
 let subscriptionCodes = loadSubscriptionCodes();
+
+
+// Variables to store the current trivia question and answer for each user
+const activeTrivia = {};
 
 // Variable to track the last time a Twitter API call was made
 let lastTwitterCallTime = 0;
@@ -180,6 +202,46 @@ async function assignRoleToUser(message, roleName) {
     } catch (error) {
         console.error('Error assigning role:', error);
         message.reply('There was an error assigning the role.');
+    }
+}
+
+// Function to create a role if it doesn't exist
+async function createRoleIfNotExists(guild, roleName) {
+    let role = guild.roles.cache.find(r => r.name === roleName);
+    if (!role) {
+        try {
+            role = await guild.roles.create({
+                name: roleName,
+                color: triviaRoleColor,
+                reason: 'Role created by bot for trivia winners'
+            });
+            console.log(`Role "${roleName}" created successfully.`);
+        } catch (error) {
+            console.error('Error creating role:', error);
+        }
+    }
+    return role;
+}
+
+// Function to assign the trivia role
+async function assignTriviaRole(message) {
+    const guild = message.guild;
+    if (!guild) {
+        message.reply('This command can only be used in a server.');
+        return;
+    }
+
+    // Ensure the role exists or create it
+    const role = await createRoleIfNotExists(guild, triviaRoleName);
+    if (role) {
+        try {
+            const member = await guild.members.fetch(message.author.id);
+            await member.roles.add(role);
+            message.reply(`Congratulations! You've passed the trivia and been assigned the "${triviaRoleName}" role.`);
+        } catch (error) {
+            console.error('Error assigning trivia role:', error);
+            message.reply('There was an error assigning the role.');
+        }
     }
 }
 
@@ -324,10 +386,43 @@ client.on('messageCreate', async (message) => {
                 await assignRoleToUser(message, roleName);
                 return;
             } else {
-                message.reply('The "check twitter" command can only be used in a direct message.');
+                message.reply('This command can only be used in a direct message.');
             }
         }
 
+        // Start the trivia
+        if (command === 'start trivia') {
+            const trivia = getRandomTrivia();
+            activeTrivia[userId] = trivia; // Store the question for this user
+            message.reply(`Trivia Question: ${trivia.question}`);
+            return;
+        }
+
+        // Check if the user submitted an answer
+        if (command.startsWith('answer')) {
+            const userAnswer = command.slice('answer'.length).trim().toLowerCase();
+            const userTrivia = activeTrivia[userId];
+    
+            if (!userTrivia) {
+                message.reply("Please start a trivia first by typing 'start trivia'.");
+                return;
+            }
+    
+            if (userAnswer === userTrivia.answer.toLowerCase()) {
+                userPoints[userId] = (userPoints[userId] || 0) + 1; // Increment user points
+    
+                if (userPoints[userId] >= triviaRolePoints) {
+                    await assignTriviaRole(message); // Grant role if points meet requirement
+                    delete userPoints[userId]; // Reset user points
+                } else {
+                    message.reply(`Correct! You need ${triviaRolePoints - userPoints[userId]} more points for the role.`);
+                }
+    
+                delete activeTrivia[userId]; // Clear the trivia session for this user
+            } else {
+                message.reply("That's incorrect! Please try again.");
+            }
+        }
 
         // Handle the "time left" command
         if (command === 'time left') {
