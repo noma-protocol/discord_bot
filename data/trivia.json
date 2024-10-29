@@ -1,0 +1,18 @@
+[
+    {
+        "roleName": "Smart contract expert",
+        "roleColor": 9,
+        "rolePoints": 2,
+        "questions": [
+            {
+                "question": "What's Solidity?",
+                "answer": "a programming language for smart contracts"
+            },
+            {
+                "question": "What's the EVM?",
+                "answer": "EVM stands for Ethereum Virtual Machine"
+            }
+        ]
+    }
+    
+]

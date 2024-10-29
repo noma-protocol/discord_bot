@@ -38,7 +38,7 @@ const presaleStartDate = new Date('2024-11-11T00:00:00Z'); // Set the presale st
 // File path for persisting subscription data
 const dataFilePath = path.join(__dirname + 'data/', 'subscriptionCodes.json');
 
-const triviaData = JSON.parse(fs.readFileSync(path.join(__dirname, 'trivia.json'), 'utf-8'));
+const triviaData = JSON.parse(fs.readFileSync(path.join(__dirname + 'data/', 'trivia.json'), 'utf-8'));
 
 // Check if triviaData is an array and retrieve questions
 const triviaQuestions = triviaData[0]?.questions || [];
