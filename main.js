@@ -171,12 +171,12 @@ client.once('ready', async () => {
     }
 
     // Schedule the countdown to be sent to the #presale channel every 5 minutes
-    setInterval(async () => {
-        const channel = client.channels.cache.get(config.chanId);
-        if (channel) {
-            channel.send(getTimeLeft());
-        }
-    }, 60 * 60 * 1000); // 5 minutes in milliseconds    
+    // setInterval(async () => {
+    //     const channel = client.channels.cache.get(config.chanId);
+    //     if (channel) {
+    //         channel.send(getTimeLeft());
+    //     }
+    // }, 60 * 60 * 1000); // 5 minutes in milliseconds    
 });
 
 // Function to assign a role to a user
