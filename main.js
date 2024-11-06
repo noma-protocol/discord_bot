@@ -313,7 +313,7 @@ client.on('messageCreate', async (message) => {
         // Handle the "task" command
         if (command === 'task') {
             if (!isAfterRestrictionDate()) {
-                message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+                message.reply('This command will be available after November 7, 0:00 UTC.');
                 return;
             }
             if (!message.guild) { // DM only
@@ -349,7 +349,7 @@ client.on('messageCreate', async (message) => {
     // Handle the "check servers" command (DM only)
     if (command === 'check servers') {
         if (!isAfterRestrictionDate()) {
-            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            message.reply('This command will be available after November 7, 0:00 UTC.');
             return;
         }
         if (!message.guild) { // Check if the message is in a DM
@@ -378,7 +378,7 @@ client.on('messageCreate', async (message) => {
     // Handle the "subscribe" command (DM only)
     if (command.startsWith('subscribe')) {
         if (!isAfterRestrictionDate()) {
-            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            message.reply('This command will be available after November 7, 0:00 UTC.');
             return;
         }
         if (!message.guild) { // Check if the message is in a DM
@@ -423,7 +423,7 @@ client.on('messageCreate', async (message) => {
     // Handle the "verify" command (DM only)
     if (command === 'verify') {
         if (!isAfterRestrictionDate()) {
-            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            message.reply('This command will be available after November 7, 0:00 UTC.');
             return;
         }
         if (!message.guild) { // Check if the message is in a DM
@@ -456,7 +456,7 @@ client.on('messageCreate', async (message) => {
     // Handle the "verify task" command to check if the task is complete and update balance
     if (command === 'verify task') {
         if (!isAfterRestrictionDate()) {
-            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            message.reply('This command will be available after November 7, 0:00 UTC.');
             return;
         }
         if (!message.guild) { // DM only
