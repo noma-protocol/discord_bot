@@ -412,7 +412,7 @@ client.on('messageCreate', async (message) => {
 
             saveSubscriptionCodes();
             message.reply(`Please post this text on X/Twitter: \n
-                "I am participating in the Noma protocol bootstrap event. Unique code: ${uniqueCode}. Follow Noma on X/Twitter https://x.com/nomaprotocol and on Discord https://discord.gg/nomaprotocol" \n\n
+                "I want to whitelist for the Noma protocol bootstrap event. Unique code: ${uniqueCode}. \n Follow Noma on X/Twitter https://x.com/nomaprotocol and on Discord https://discord.gg/nomaprotocol" \n\n
                  Once done, use the "@BootstrapBot verify" command to complete the process`);
     } else {
             message.reply('The "subscribe" command can only be used in a direct message.');
