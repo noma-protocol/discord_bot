@@ -35,8 +35,11 @@ const allowedChannelId = config.chanId;
 // Presale start date
 const presaleStartDate = new Date('2024-11-11T00:00:00Z'); // Set the presale start date
 
+// Define the target date for the countdown
+const targetDate = new Date('2024-12-07T00:00:00Z'); // December 7, 0:00 UTC
+
 // File path for persisting subscription data
-const dataFilePath = path.join(__dirname + 'data/', 'subscriptionCodes.json');
+const dataFilePath = path.join(__dirname + '/data/', 'subscriptionCodes.json');
 
 const triviaData = JSON.parse(fs.readFileSync(path.join(__dirname + '/data/', 'trivia.json'), 'utf-8'));
 
@@ -74,9 +77,10 @@ const contractABI = config.contractABI; // ABI of the presale smart contract
 const contract = new ethers.Contract(contractAddress, contractABI.abi, provider);
 
 // Presale parameters
-const totalGoal = ethers.utils.parseEther('700'); // 700 ETH goal
-const minParticipation = ethers.utils.parseEther('0.25'); // Minimum participation 0.25 ETH
-const maxParticipation = ethers.utils.parseEther('10'); // Maximum participation 10 ETH
+const hardCap = ethers.utils.parseEther('700'); // 700 ETH goal
+
+// Define the date after which restricted commands can be used
+const restrictionDate = new Date('2024-11-07T00:00:00Z'); // November 7, 0:00 UTC
 
 // Function to load subscription codes from a JSON file
 function loadSubscriptionCodes() {
@@ -129,7 +133,7 @@ async function isUserMemberOfServers(userId) {
 async function checkPresaleProgress() {
     try {
         const balance = await provider.getBalance(contractAddress);
-        const progressPercentage = balance.mul(100).div(totalGoal);
+        const progressPercentage = balance.mul(100).div(hardCap);
         return {
             balance: ethers.utils.formatEther(balance),
             progressPercentage: progressPercentage.toString()
@@ -245,14 +249,39 @@ async function assignTriviaRole(message) {
     }
 }
 
+// Function to calculate time left
+function getTimeLeftToTarget() {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+        return 'The target date has already passed!';
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    return `Time left until December 7, 0:00 UTC: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+// Function to check if restricted commands are available
+function isAfterRestrictionDate() {
+    const now = new Date();
+    return now >= restrictionDate;
+}
+
 // Event listener for when a message is received
 client.on('messageCreate', async (message) => {
+
     // Ignore messages from the bot itself
     if (message.author.bot) return;
 
-    // Check if the message was sent in the allowed channel
-    if (message.channel.id !== allowedChannelId) {
-        return; // Ignore messages from other channels
+    // Allow messages only in the allowed channel or in DMs
+    if (message.guild && message.channel.id !== allowedChannelId) {
+        console.log(`Ignored`);
+        return;
     }
 
     const userId = message.author.id;
@@ -269,18 +298,60 @@ client.on('messageCreate', async (message) => {
         // Handle the "help" command
         if (command === 'help') {
             const helpMessage = `
-    **Available Commands:**
-    1. **help** - Displays this help message.
-    2. **check servers** - (DM only) Checks if you have joined the specified servers.
-    4. **subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only) Subscribe with your Twitter handle and Ethereum address.
-    5. **verify** - (DM only) Check if your Twitter subscription has been verified.
-            `;
+        **Available Commands:**
+        1. **@BootstrapBot help** - Displays this help message. \n
+        2. **@BootstrapBot subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only)                                                   Subscribe with your Twitter handle and Ethereum address.\n
+        3. **@BootstrapBot check servers** - (DM only)                                                                                                                    Checks if you have joined the specified servers.\n
+        4. **@BootstrapBot verify** - (DM only)                                                                                                                                           Checks if your Twitter subscription has been verified.\n
+        5. **@BootstrapBot task** - (DM only, daily)                                                                                                                                          Receive a daily task with a unique code to post on Twitter. Can only be used once per day.\n
+        6. **@BootstrapBot verify task** - (DM only)                                                                                                                                          Verify that you have completed your daily task by posting the code on Twitter.
+        `;
             message.reply(helpMessage);
             return;
+        }
+        
+        // Handle the "task" command
+        if (command === 'task') {
+            if (!isAfterRestrictionDate()) {
+                message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+                return;
+            }
+            if (!message.guild) { // DM only
+                // Check if the user already has a subscription
+                let subscription = subscriptionCodes[userId];
+                if (!subscription) {
+                    message.reply('You need to subscribe first using `subscribe @TwitterHandle 0xYourEthereumAddress`.');
+                    return;
+                }
+        
+                // Check if the user has completed a task in the last 24 hours
+                const now = Date.now();
+                const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                if (subscription.lastTask && now - new Date(subscription.lastTask).getTime() < oneDay) {
+                    message.reply('You can only complete one task per day. Please try again tomorrow.');
+                    return;
+                }
+        
+                // Generate a new unique code for the task
+                const newTaskCode = generateUniqueCode();
+                subscriptionCodes[userId].code = newTaskCode;
+                subscriptionCodes[userId].verified = false; // Reset verification status
+                subscriptionCodes[userId].lastTask = new Date().toISOString(); // Update lastTask to the current date and time
+                message.reply(`Please post this text on X/Twitter to complete your task: \n
+                    "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}. Follow Noma on X/Twitter https://x.com/nomaprotocol and on Discord https://discord.gg/nomaprotocol"`);
+                saveSubscriptionCodes();
+                return;
+            } else {
+                message.reply('The "task" command can only be used in a direct message.');
+            }
         }
 
     // Handle the "check servers" command (DM only)
     if (command === 'check servers') {
+        if (!isAfterRestrictionDate()) {
+            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            return;
+        }
         if (!message.guild) { // Check if the message is in a DM
             const memberStatus = await isUserMemberOfServers(userId);
             const response = Object.entries(memberStatus)
@@ -306,6 +377,10 @@ client.on('messageCreate', async (message) => {
 
     // Handle the "subscribe" command (DM only)
     if (command.startsWith('subscribe')) {
+        if (!isAfterRestrictionDate()) {
+            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            return;
+        }
         if (!message.guild) { // Check if the message is in a DM
             console.log(`User ${userId} wants to subscribe with message: ${message.content}`);
             if (subscriptionCodes[userId]) {
@@ -336,15 +411,21 @@ client.on('messageCreate', async (message) => {
             subscriptionCodes[userId] = { code: uniqueCode, twitterHandle, verified: false, address: ethereumAddress };
 
             saveSubscriptionCodes();
-            message.reply(`Please post this code on Twitter: ${uniqueCode}`);
-        } else {
+            message.reply(`Please post this text on X/Twitter: \n
+                "I am participating in the Noma protocol bootstrap event. Unique code: ${uniqueCode}. Follow Noma on X/Twitter https://x.com/nomaprotocol and on Discord https://discord.gg/nomaprotocol" \n\n
+                 Once done, use the "@BootstrapBot verify" command to complete the process`);
+    } else {
             message.reply('The "subscribe" command can only be used in a direct message.');
         }
         return;
     }
 
-    // Handle "check twitter" command (DM only)
-    if (command.includes('verify')) {
+    // Handle the "verify" command (DM only)
+    if (command === 'verify') {
+        if (!isAfterRestrictionDate()) {
+            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            return;
+        }
         if (!message.guild) { // Check if the message is in a DM
             const subscription = subscriptionCodes[userId];
             if (!subscription) {
@@ -367,7 +448,36 @@ client.on('messageCreate', async (message) => {
                 message.reply('Verification failed.');
             }
         } else {
-            message.reply('The "check twitter" command can only be used in a direct message.');
+            message.reply('The "verify" command can only be used in a direct message.');
+        }
+        return;
+    }
+
+    // Handle the "verify task" command to check if the task is complete and update balance
+    if (command === 'verify task') {
+        if (!isAfterRestrictionDate()) {
+            message.reply('The "verify" command will be available after November 7, 0:00 UTC.');
+            return;
+        }
+        if (!message.guild) { // DM only
+            const subscription = subscriptionCodes[userId];
+            if (!subscription) {
+                message.reply('Please subscribe and complete a task first.');
+                return;
+            }
+
+            const { code, twitterHandle } = subscription;
+            const isVerified = await checkTwitterPostForCode(twitterHandle, code);
+            if (isVerified) {
+                message.reply('Task verified successfully! Your balance has been increased by 1.');
+                subscriptionCodes[userId].verified = true;
+                subscriptionCodes[userId].balance = (subscriptionCodes[userId].balance || 0) + 1; // Increment balance
+                saveSubscriptionCodes();
+            } else {
+                message.reply('Task verification failed. Please ensure you have posted the correct code on Twitter.');
+            }
+        } else {
+            message.reply('The "verify task" command can only be used in a direct message.');
         }
         return;
     }
@@ -422,11 +532,14 @@ client.on('messageCreate', async (message) => {
     //     }
     // }
 
-    // Handle the "time left" command
-    // if (command === 'time left') {
-    //     message.reply(getTimeLeft());
-    //     return;
-    // }
+
+    // Handle the "timeleft" command
+    if (command === 'timeleft') {
+        const timeLeftMessage = getTimeLeftToTarget();
+        message.reply(timeLeftMessage);
+        return;
+    }
+
 
     }
 });
@@ -454,6 +567,7 @@ async function checkTwitterPostForCode(twitterHandle, code) {
         if (tweets._realData && tweets._realData.data) {
             return tweets._realData.data.some(tweet => tweet.text.includes(code));
         }
+        console.log(`Found on Twitter`)
     } catch (error) {
         console.error('Twitter check error:', error);
     }
