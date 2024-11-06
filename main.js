@@ -272,163 +272,161 @@ client.on('messageCreate', async (message) => {
     **Available Commands:**
     1. **help** - Displays this help message.
     2. **check servers** - (DM only) Checks if you have joined the specified servers.
-    3. **check presale** - Shows the current progress of the presale.
     4. **subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only) Subscribe with your Twitter handle and Ethereum address.
-    5. **check twitter** - (DM only) Check if your Twitter subscription has been verified.
-    6. **add role <role name>** - Assigns a specified role to you.
+    5. **verify** - (DM only) Check if your Twitter subscription has been verified.
             `;
             message.reply(helpMessage);
             return;
         }
 
-        // Handle the "check servers" command (DM only)
-        if (command === 'check servers') {
-            if (!message.guild) { // Check if the message is in a DM
-                const memberStatus = await isUserMemberOfServers(userId);
-                const response = Object.entries(memberStatus)
-                    .map(([serverId, isMember]) => `Server ${serverId}: ${isMember ? 'Joined' : 'Not Joined'}`)
-                    .join('\n');
-                message.reply(`Server membership status:\n${response}`);
-            } else {
-                message.reply('The "check servers" command can only be used in a direct message.');
-            }
-            return;
+    // Handle the "check servers" command (DM only)
+    if (command === 'check servers') {
+        if (!message.guild) { // Check if the message is in a DM
+            const memberStatus = await isUserMemberOfServers(userId);
+            const response = Object.entries(memberStatus)
+                .map(([serverId, isMember]) => `Server ${serverId}: ${isMember ? 'Joined' : 'Not Joined'}`)
+                .join('\n');
+            message.reply(`Server membership status:\n${response}`);
+        } else {
+            message.reply('The "check servers" command can only be used in a direct message.');
         }
+        return;
+    }
 
-        // Handle the "check presale" command (can be used in channels)
-        if (command === 'check presale') {
-            const progress = await checkPresaleProgress();
-            if (progress) {
-                message.reply(`Presale Progress:\nBalance: ${progress.balance} ETH\nProgress: ${progress.progressPercentage}%`);
-            } else {
-                message.reply('Failed to check presale progress.');
+    // Handle the "check presale" command (can be used in channels)
+    // if (command === 'check presale') {
+    //     const progress = await checkPresaleProgress();
+    //     if (progress) {
+    //         message.reply(`Presale Progress:\nBalance: ${progress.balance} ETH\nProgress: ${progress.progressPercentage}%`);
+    //     } else {
+    //         message.reply('Failed to check presale progress.');
+    //     }
+    //     return;
+    // }
+
+    // Handle the "subscribe" command (DM only)
+    if (command.startsWith('subscribe')) {
+        if (!message.guild) { // Check if the message is in a DM
+            console.log(`User ${userId} wants to subscribe with message: ${message.content}`);
+            if (subscriptionCodes[userId]) {
+                message.reply('You are already registered.');
+                return;
             }
-            return;
+
+            const args = command.split(' ');
+            if (args.length < 3 || !args[1].startsWith('@') || !ethers.utils.isAddress(args[2])) {
+                message.reply('Usage: subscribe @TwitterHandle 0xYourEthereumAddress');
+                return;
+            }
+
+            const twitterHandle = args[1].replace('@', '').trim();
+            const ethereumAddress = args[2].trim();
+
+            if (!/^[A-Za-z0-9_]{1,15}$/.test(twitterHandle)) {
+                message.reply('Invalid Twitter handle.');
+                return;
+            }
+
+            if (isAddressAlreadyRegistered(ethereumAddress)) {
+                message.reply('This Ethereum address is already registered.');
+                return;
+            }
+
+            const uniqueCode = generateUniqueCode();
+            subscriptionCodes[userId] = { code: uniqueCode, twitterHandle, verified: false, address: ethereumAddress };
+
+            saveSubscriptionCodes();
+            message.reply(`Please post this code on Twitter: ${uniqueCode}`);
+        } else {
+            message.reply('The "subscribe" command can only be used in a direct message.');
         }
+        return;
+    }
 
-        // Handle the "subscribe" command (DM only)
-        if (command.startsWith('subscribe')) {
-            if (!message.guild) { // Check if the message is in a DM
-                console.log(`User ${userId} wants to subscribe with message: ${message.content}`);
-                if (subscriptionCodes[userId]) {
-                    message.reply('You are already registered.');
-                    return;
-                }
+    // Handle "check twitter" command (DM only)
+    if (command.includes('verify')) {
+        if (!message.guild) { // Check if the message is in a DM
+            const subscription = subscriptionCodes[userId];
+            if (!subscription) {
+                message.reply('Please subscribe first.');
+                return;
+            }
 
-                const args = command.split(' ');
-                if (args.length < 3 || !args[1].startsWith('@') || !ethers.utils.isAddress(args[2])) {
-                    message.reply('Usage: subscribe @TwitterHandle 0xYourEthereumAddress');
-                    return;
-                }
+            if (subscription.verified) {
+                message.reply('You are already verified.');
+                return;
+            }
 
-                const twitterHandle = args[1].replace('@', '').trim();
-                const ethereumAddress = args[2].trim();
-
-                if (!/^[A-Za-z0-9_]{1,15}$/.test(twitterHandle)) {
-                    message.reply('Invalid Twitter handle.');
-                    return;
-                }
-
-                if (isAddressAlreadyRegistered(ethereumAddress)) {
-                    message.reply('This Ethereum address is already registered.');
-                    return;
-                }
-
-                const uniqueCode = generateUniqueCode();
-                subscriptionCodes[userId] = { code: uniqueCode, twitterHandle, verified: false, address: ethereumAddress };
-
+            const { code, twitterHandle } = subscription;
+            const isVerified = await checkTwitterPostForCode(twitterHandle, code);
+            if (isVerified) {
+                message.reply('Verified successfully.');
+                subscriptionCodes[userId].verified = true;
                 saveSubscriptionCodes();
-                message.reply(`Please post this code on Twitter: ${uniqueCode}`);
             } else {
-                message.reply('The "subscribe" command can only be used in a direct message.');
+                message.reply('Verification failed.');
             }
-            return;
+        } else {
+            message.reply('The "check twitter" command can only be used in a direct message.');
         }
+        return;
+    }
 
-        // Handle "check twitter" command (DM only)
-        if (command.includes('check twitter')) {
-            if (!message.guild) { // Check if the message is in a DM
-                const subscription = subscriptionCodes[userId];
-                if (!subscription) {
-                    message.reply('Please subscribe first.');
-                    return;
-                }
+    // Handle the "add role" command
+    // if (command.includes('add role')) {
+    //     if (!message.guild) { // Check if the message is in a DM
+    //         const roleName = command.slice('add role'.length).trim(); // Extract the role name from the command
+    //         if (!roleName) {
+    //             message.reply('Please specify a role name.');
+    //             return;
+    //         }
+    //         // Assign the role to the user
+    //         await assignRoleToUser(message, roleName);
+    //         return;
+    //     } else {
+    //         message.reply('This command can only be used in a direct message.');
+    //     }
+    // }
 
-                if (subscription.verified) {
-                    message.reply('You are already verified.');
-                    return;
-                }
+    // Start the trivia
+    // if (command === 'start trivia') {
+    //     const trivia = getRandomTrivia();
+    //     activeTrivia[userId] = trivia; // Store the question for this user
+    //     message.reply(`Trivia Question: ${trivia.question}`);
+    //     return;
+    // }
 
-                const { code, twitterHandle } = subscription;
-                const isVerified = await checkTwitterPostForCode(twitterHandle, code);
-                if (isVerified) {
-                    message.reply('Verified successfully.');
-                    subscriptionCodes[userId].verified = true;
-                    saveSubscriptionCodes();
-                } else {
-                    message.reply('Verification failed.');
-                }
-            } else {
-                message.reply('The "check twitter" command can only be used in a direct message.');
-            }
-            return;
-        }
+    // Check if the user submitted an answer
+    // if (command.startsWith('answer')) {
+    //     const userAnswer = command.slice('answer'.length).trim().toLowerCase();
+    //     const userTrivia = activeTrivia[userId];
 
-        // Handle the "add role" command
-        if (command.includes('add role')) {
-            if (!message.guild) { // Check if the message is in a DM
-                const roleName = command.slice('add role'.length).trim(); // Extract the role name from the command
-                if (!roleName) {
-                    message.reply('Please specify a role name.');
-                    return;
-                }
-                // Assign the role to the user
-                await assignRoleToUser(message, roleName);
-                return;
-            } else {
-                message.reply('This command can only be used in a direct message.');
-            }
-        }
+    //     if (!userTrivia) {
+    //         message.reply("Please start a trivia first by typing 'start trivia'.");
+    //         return;
+    //     }
 
-        // Start the trivia
-        if (command === 'start trivia') {
-            const trivia = getRandomTrivia();
-            activeTrivia[userId] = trivia; // Store the question for this user
-            message.reply(`Trivia Question: ${trivia.question}`);
-            return;
-        }
+    //     if (userAnswer === userTrivia.answer.toLowerCase()) {
+    //         userPoints[userId] = (userPoints[userId] || 0) + 1; // Increment user points
 
-        // Check if the user submitted an answer
-        if (command.startsWith('answer')) {
-            const userAnswer = command.slice('answer'.length).trim().toLowerCase();
-            const userTrivia = activeTrivia[userId];
-    
-            if (!userTrivia) {
-                message.reply("Please start a trivia first by typing 'start trivia'.");
-                return;
-            }
-    
-            if (userAnswer === userTrivia.answer.toLowerCase()) {
-                userPoints[userId] = (userPoints[userId] || 0) + 1; // Increment user points
-    
-                if (userPoints[userId] >= triviaRolePoints) {
-                    await assignTriviaRole(message); // Grant role if points meet requirement
-                    delete userPoints[userId]; // Reset user points
-                } else {
-                    message.reply(`Correct! You need ${triviaRolePoints - userPoints[userId]} more points for the role.`);
-                }
-    
-                delete activeTrivia[userId]; // Clear the trivia session for this user
-            } else {
-                message.reply("That's incorrect! Please try again.");
-            }
-        }
+    //         if (userPoints[userId] >= triviaRolePoints) {
+    //             await assignTriviaRole(message); // Grant role if points meet requirement
+    //             delete userPoints[userId]; // Reset user points
+    //         } else {
+    //             message.reply(`Correct! You need ${triviaRolePoints - userPoints[userId]} more points for the role.`);
+    //         }
 
-        // Handle the "time left" command
-        if (command === 'time left') {
-            message.reply(getTimeLeft());
-            return;
-        }
+    //         delete activeTrivia[userId]; // Clear the trivia session for this user
+    //     } else {
+    //         message.reply("That's incorrect! Please try again.");
+    //     }
+    // }
+
+    // Handle the "time left" command
+    // if (command === 'time left') {
+    //     message.reply(getTimeLeft());
+    //     return;
+    // }
 
     }
 });
