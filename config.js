@@ -9,7 +9,7 @@ module.exports = {
         accessToken: process.env.TWITTER_ACCESS_TOKEN,
         accessSecret: process.env.TWITTER_ACCESS_SECRET
     },
-    chanId: '1299372809817948160',
+    chanId: '1303781041655513229',
     serverIDs: ["1252348309813596191", "1106982563853111296"],
     contractABI, // Add the ABI to the exported configuration
     contractAddress: 0x0000000000000000000000000000
