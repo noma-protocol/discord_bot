@@ -150,19 +150,19 @@ function isAddressAlreadyRegistered(address) {
 }
 
 // Function to get the time left until the presale starts
-function getTimeLeft() {
-    const now = new Date();
-    const diff = presaleStartDate - now;
-    if (diff <= 0) {
-        return 'The presale has already started!';
-    }
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+// function getTimeLeft() {
+//     const now = new Date();
+//     const diff = presaleStartDate - now;
+//     if (diff <= 0) {
+//         return 'The presale has already started!';
+//     }
+//     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+//     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+//     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+//     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    return `Time left until the presale starts: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-}
+//     return `Time left until the presale starts: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+// }
 
 // Event listener for when the client is ready
 client.once('ready', async () => {
@@ -301,15 +301,27 @@ client.on('messageCreate', async (message) => {
         **Available Commands:**
         1. **@BootstrapBot help** - Displays this help message. \n
         2. **@BootstrapBot subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only)                                                   Subscribe with your Twitter handle and Ethereum address.\n
-        3. **@BootstrapBot check servers** - (DM only)                                                                                                                    Checks if you have joined the specified servers.\n
-        4. **@BootstrapBot verify** - (DM only)                                                                                                                                           Checks if your Twitter subscription has been verified.\n
-        5. **@BootstrapBot task** - (DM only, daily)                                                                                                                                          Receive a daily task with a unique code to post on Twitter. Can only be used once per day.\n
-        6. **@BootstrapBot verify task** - (DM only)                                                                                                                                          Verify that you have completed your daily task by posting the code on Twitter.
+        3. **@BootstrapBot check servers** - (DM only)                                                                                                                    Check if you have joined the specified servers.\n
+        4. **@BootstrapBot finalize** - (DM only)                                                                                                                                           Check if you posted your text on X/Twitter to finalize your subscription.\n
+        5. **@BootstrapBot task** - (DM only, daily)                                                                                                                                          Receive a daily task with a unique code to post on X/Twitter. Can only be used once per day.\n
+        6. **@BootstrapBot verify task** - (DM only)                                                                                                                                          Verify that you have completed your daily task by posting the code on X/Twitter. Can only be used once per day.
         `;
             message.reply(helpMessage);
             return;
         }
-        
+
+        // Handle the "balance" command
+        if (command === 'balance') {
+            const subscription = subscriptionCodes[userId];
+            if (!subscription || !subscription.balance) {
+                message.reply("You don't have any $NOMA points yet. Start participating to earn points!");
+            } else {
+                const balance = subscription.balance;
+                message.reply(`Your current balance is ${balance} $NOMA points.`);
+            }
+            return;
+        }
+
         // Handle the "task" command
         if (command === 'task') {
             if (!isAfterRestrictionDate()) {
@@ -413,15 +425,15 @@ client.on('messageCreate', async (message) => {
             saveSubscriptionCodes();
             message.reply(`Please post this text on X/Twitter: \n
                 "I want to be whitelisted for the Noma protocol Bootstrap event. Unique code: ${uniqueCode}. Follow Noma on X/Twitter https://x.com/nomaprotocol and on Discord https://discord.gg/nomaprotocol" \n\n
-                 Once done, use the "@BootstrapBot verify" command to complete the process`);
+                 Once done, use the "@BootstrapBot finalize" command to complete the process`);
     } else {
             message.reply('The "subscribe" command can only be used in a direct message.');
         }
         return;
     }
 
-    // Handle the "verify" command (DM only)
-    if (command === 'verify') {
+    // Handle the "finalize" command (DM only)
+    if (command === 'finalize') {
         if (!isAfterRestrictionDate()) {
             message.reply('This command will be available after November 7, 0:00 UTC.');
             return;
@@ -469,7 +481,7 @@ client.on('messageCreate', async (message) => {
             const { code, twitterHandle } = subscription;
             const isVerified = await checkTwitterPostForCode(twitterHandle, code);
             if (isVerified) {
-                message.reply('Task verified successfully! Your balance has been increased by 1.');
+                message.reply('Task verified successfully! Your balance has been increased by 1 $NOMA points.');
                 subscriptionCodes[userId].verified = true;
                 subscriptionCodes[userId].balance = (subscriptionCodes[userId].balance || 0) + 1; // Increment balance
                 saveSubscriptionCodes();
