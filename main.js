@@ -306,18 +306,14 @@ function isAfterRestrictionDate() {
     return true; // now >= restrictionDate;
 }
 
-// Helper function to parse commands, ignoring extra spaces
+// Helper function to parse commands, including multi-word commands
 function parseCommand(messageContent, botMention) {
-    // Remove bot mention and any surrounding whitespace
     const commandString = messageContent.replace(botMention, '').trim();
-
-    // Use a regex to capture the command and arguments
-    const commandMatch = commandString.match(/(\w+)(.*)/);
+    const commandMatch = commandString.match(/(\w+\s*\w*)(.*)/); // Capture up to two words for the command
     if (!commandMatch) return { command: null, args: [] };
 
     const [, command, argsString] = commandMatch;
-    // Split arguments by spaces, removing any excess whitespace
-    const args = argsString.trim().split(/\s+/);
+    const args = argsString.trim().split(/\s+/); // Split arguments by spaces, removing any excess whitespace
 
     return { command: command.toLowerCase(), args };
 }
