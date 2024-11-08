@@ -46,7 +46,7 @@ app.get('/get-subscription', (req, res) => {
         return res.json(result);
     } else {
         // If not found, return a 404 Not Found response
-        return res.status(404).json({ error: 'Subscription not found for the given address' });
+        return res.json({ error: 'Subscription not found for the given address' });
     }
 });
 
