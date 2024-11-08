@@ -35,7 +35,7 @@ const allowedChannelId = config.chanId;
 // Define the target date for the countdown
 const targetDate = new Date('2024-12-07T00:00:00Z'); // December 7, 0:00 UTC
 
-const taskCooldown = 86400; // Use 86400000 for a full 24 hours
+const taskCooldown = 86400000; 
 
 // File path for persisting subscription data
 const dataFilePath = path.join(__dirname + '/data/', 'subscriptionCodes.json');
