@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
+const taskCooldown = 86400; // Use 86400000 for a full 24 hours
 
 app.use(cors({
     origin: ['http://localhost:5173', 'https://noma.money'],
