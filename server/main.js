@@ -25,6 +25,16 @@ function loadSubscriptionData() {
     return {};
 }
 
+// Function to save JSON data to the file
+function saveSubscriptionData(data) {
+    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
+}
+
+// Function to generate a unique code
+function generateUniqueCode() {
+    return crypto.randomBytes(4).toString('hex'); // Generates an 8-character hex code
+}
+
 app.options('/get-subscription', cors());
 app.get('/get-subscription', (req, res) => {
     const { address } = req.query; // Get the 'address' parameter from the query string
@@ -48,6 +58,49 @@ app.get('/get-subscription', (req, res) => {
         // If not found, return a 404 Not Found response
         return res.json({ error: 'Subscription not found for the given address' });
     }
+});
+
+
+// Task endpoint
+app.options('/task', cors());
+app.post('/task', (req, res) => {
+    const { userId } = req.body; // Get the 'userId' parameter from the request body
+
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    // Load subscription data
+    const subscriptionData = loadSubscriptionData();
+
+    // Check if user has a subscription
+    const subscription = subscriptionData[userId];
+    if (!subscription) {
+        return res.status(404).json({ error: 'User not found. Please subscribe first.' });
+    }
+
+    const now = Date.now();
+
+    // Check if the user has completed a task recently
+    if (subscription.lastTask) {
+        const timeSinceLastTask = now - new Date(subscription.lastTask).getTime();
+        if (timeSinceLastTask < taskCooldown) {
+            return res.status(403).json({ error: 'Task already completed today. Please try again tomorrow.' });
+        }
+    }
+
+    // Generate a new unique code for the task
+    const newTaskCode = generateUniqueCode();
+    subscription.code = newTaskCode;
+    subscription.lastTask = now;
+
+    // Save updated subscription data
+    saveSubscriptionData(subscriptionData);
+
+    res.json({
+        message: `Task generated successfully. Please post this text on X/Twitter to complete your task: "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}."`,
+        taskCode: newTaskCode
+    });
 });
 
 // Start the server
