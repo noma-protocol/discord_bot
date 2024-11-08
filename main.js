@@ -429,7 +429,6 @@ client.on('messageCreate', async (message) => {
                     // Generate a new unique code for the task
                     const newTaskCode = generateUniqueCode();
                     subscriptionCodes[userId].code = newTaskCode;
-                    subscriptionCodes[userId].verified = false; // Reset verification status
                     subscriptionCodes[userId].lastTask = new Date().toISOString(); // Update lastTask to the current date and time
                     message.reply(`Please post this text on X/Twitter to complete your task: \n
                         "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}. Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA" \n\n
