@@ -62,48 +62,49 @@ app.get('/get-subscription', (req, res) => {
 
 // Task endpoint
 app.options('/task', cors());
-app.post('/task', (req, res) => {
-  const { address } = req.body; // Get the 'address' parameter from the request body
-
-  if (!address) {
-    return res.status(400).json({ error: 'Address is required' });
-  }
-
-  // Load subscription data
-  const subscriptionData = loadSubscriptionData();
-
-  // Find the subscription by wallet address
-  const subscription = Object.values(subscriptionData).find(
-    (entry) => entry.address && entry.address.toLowerCase() === address.toLowerCase()
-  );
-
-  if (!subscription) {
-    return res.status(404).json({ error: 'User not found. Please subscribe first.' });
-  }
-
-  const now = Date.now();
-
-  // Check if the user has completed a task recently
-  if (subscription.lastTask) {
-    const timeSinceLastTask = now - new Date(subscription.lastTask).getTime();
-    if (timeSinceLastTask < taskCooldown) {
-      return res.status(403).json({ error: 'Task already completed today. Please try again tomorrow.' });
+app.get('/task', (req, res) => {
+    const { address } = req.query; // Get the 'address' parameter from the query string
+  
+    if (!address) {
+      return res.status(400).json({ error: 'Address is required' });
     }
-  }
-
-  // Generate a new unique code for the task
-  const newTaskCode = generateUniqueCode();
-  subscription.code = newTaskCode;
-  subscription.lastTask = now;
-
-  // Save updated subscription data
-  saveSubscriptionData(subscriptionData);
-
-  res.json({
-    message: `Task generated successfully. Please post this text on X/Twitter to complete your task: "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}."`,
-    taskCode: newTaskCode
+  
+    // Load subscription data
+    const subscriptionData = loadSubscriptionData();
+  
+    // Find the subscription by wallet address
+    const subscription = Object.values(subscriptionData).find(
+      (entry) => entry.address && entry.address.toLowerCase() === address.toLowerCase()
+    );
+  
+    if (!subscription) {
+      return res.status(404).json({ error: 'User not found. Please subscribe first.' });
+    }
+  
+    const now = Date.now();
+  
+    // Check if the user has completed a task recently
+    if (subscription.lastTask) {
+      const timeSinceLastTask = now - new Date(subscription.lastTask).getTime();
+      if (timeSinceLastTask < taskCooldown) {
+        return res.status(403).json({ error: 'Task already completed today. Please try again tomorrow.' });
+      }
+    }
+  
+    // Generate a new unique code for the task
+    const newTaskCode = generateUniqueCode();
+    subscription.code = newTaskCode;
+    subscription.lastTask = now;
+  
+    // Save updated subscription data
+    saveSubscriptionData(subscriptionData);
+  
+    res.json({
+      message: `Task generated successfully. Please post this text on X/Twitter to complete your task: "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}."`,
+      taskCode: newTaskCode
+    });
   });
-});
+  
 
 // Start the server
 app.listen(PORT, () => {
