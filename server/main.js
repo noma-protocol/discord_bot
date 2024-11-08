@@ -89,7 +89,7 @@ app.get('/task', (req, res) => {
     if (subscription.lastTask) {
       const timeSinceLastTask = now - new Date(subscription.lastTask).getTime();
       if (timeSinceLastTask < taskCooldown) {
-        return res.status(403).json({ error: 'Task already completed today. Please try again tomorrow.' });
+        return res.json({ error: 'Task already completed today. Please try again tomorrow.' });
       }
     }
   
