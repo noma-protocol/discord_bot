@@ -1,9 +1,18 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const cors = require("cors"); 
 
 const app = express();
 const PORT = 3000;
+
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: false
+}));
 
 // Path to your JSON file
 const dataFilePath = path.join(__dirname, '../data/subscriptionCodes.json');
