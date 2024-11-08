@@ -1,17 +1,11 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 const cors = require("cors"); 
 
 const app = express();
-const PORT = 3000; // HTTPS port, commonly 443 for production
+const PORT = 3000;
 
-// Load SSL certificates
-const sslOptions = {
-    key: fs.readFileSync(path.join(__dirname, '/server.key')),  // Update with actual path
-    cert: fs.readFileSync(path.join(__dirname, '/server.cert'))  // Update with actual path
-};
 
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -34,7 +28,7 @@ function loadSubscriptionData() {
 
 app.options('/get-subscription', cors());
 app.get('/get-subscription', (req, res) => {
-    const { address } = req.query;
+    const { address } = req.query; // Get the 'address' parameter from the query string
 
     if (!address) {
         return res.status(400).json({ error: 'Address parameter is required' });
@@ -57,7 +51,7 @@ app.get('/get-subscription', (req, res) => {
     }
 });
 
-// Start HTTPS server
-https.createServer(sslOptions, app).listen(PORT, () => {
-    console.log(`Secure server is running on https://localhost:${PORT}`);
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
