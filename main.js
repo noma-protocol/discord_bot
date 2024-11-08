@@ -339,8 +339,8 @@ client.on('messageCreate', async (message) => {
                     1. **@BootstrapBot help** - Displays this help message. \n
                     2. **@BootstrapBot subscribe @TwitterHandle 0xYourEthereumAddress** - (DM only) Subscribe with your Twitter handle and Ethereum address.\n
                     3. **@BootstrapBot finalize** - (DM only) Check if you posted your text on X/Twitter to finalize your subscription.\n
-                    4. **@BootstrapBot balance** - (DM only) Check your $NOMA points balance.\n
-                    5. **@BootstrapBot task** - (DM only, daily) Receive a daily task with a unique code to post on X/Twitter. Can only be used once per day.\n
+                    4. **@BootstrapBot balance** - Check your $NOMA points balance.\n
+                    5. **@BootstrapBot task** - (DM only) Receive a daily task with a unique code to post on X/Twitter. Can only be used once per day.\n
                     6. **@BootstrapBot verify task** - (DM only) Verify that you have completed your daily task by posting the code on X/Twitter. Can only be used once per day.
                 `;
                 message.reply(helpMessage);
