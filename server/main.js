@@ -6,7 +6,7 @@ const crypto = require('crypto')
 
 const app = express();
 const PORT = 3000;
-const taskCooldown = 86400; // Use 86400000 for a full 24 hours
+const taskCooldown = 86400 * 1000; // 24 hours in milliseconds
 
 app.use(cors({
     origin: ['http://localhost:5173', 'https://noma.money'],
