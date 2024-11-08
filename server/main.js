@@ -26,7 +26,7 @@ function loadSubscriptionData() {
     return {};
 }
 
-// GET endpoint to search by Ethereum address
+app.options('/get-subscription', cors());
 app.get('/get-subscription', (req, res) => {
     const { address } = req.query; // Get the 'address' parameter from the query string
 
