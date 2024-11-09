@@ -365,37 +365,37 @@ client.on('messageCreate', async (message) => {
                         message.reply('You are already registered.');
                         return;
                     }
-        
-                    const args = command.split(' ');
-                    if (args.length < 3 || !args[1].startsWith('@') || !ethers.utils.isAddress(args[2])) {
+            
+                    if (args.length < 2 || !args[0].startsWith('@') || !ethers.utils.isAddress(args[1])) {
                         message.reply('Usage: subscribe @TwitterHandle 0xYourEthereumAddress');
                         return;
                     }
-        
-                    const twitterHandle = args[1].replace('@', '').trim();
-                    const ethereumAddress = args[2].trim();
-        
+            
+                    const twitterHandle = args[0].replace('@', '').trim();
+                    const ethereumAddress = args[1].trim();
+            
                     if (!/^[A-Za-z0-9_]{1,15}$/.test(twitterHandle)) {
                         message.reply('Invalid Twitter handle.');
                         return;
                     }
-        
+            
                     if (isAddressAlreadyRegistered(ethereumAddress)) {
                         message.reply('This Ethereum address is already registered.');
                         return;
                     }
-        
+            
                     const uniqueCode = generateUniqueCode();
                     subscriptionCodes[userId] = { code: uniqueCode, twitterHandle, verified: false, balance: 0, lastTask: null, address: ethereumAddress };
-        
+            
                     saveSubscriptionCodes();
                     message.reply(`Please post this text on X/Twitter: \n
                         "I want to be whitelisted for the Noma protocol bootstrap event. Unique code: ${uniqueCode}. Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA" \n \n
-                         Once done, use the "@BootstrapBot finalize" command to complete the process`);
+                            Once done, use the "@BootstrapBot finalize" command to complete the process`);
                 } else {
-                        message.reply('The "subscribe" command can only be used in a direct message.');
+                    message.reply('The "subscribe" command can only be used in a direct message.');
                 }
                 break;
+                
 
             case 'task':
                 if (!isAfterRestrictionDate()) {
