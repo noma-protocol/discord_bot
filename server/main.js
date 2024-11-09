@@ -204,13 +204,13 @@ app.get('/task', (req, res) => {
       const { code, twitterHandle } = subscription;
   
       if (!twitterHandle) {
-          return res.status(400).json({ error: 'Twitter handle not found for this user. Please ensure you have registered correctly.' });
+          return res.json({ error: 'Twitter handle not found for this user. Please ensure you have registered correctly.' });
       }
   
       // Check if the code was posted on Twitter
       const isVerified = await checkTwitterPostForCode(twitterHandle, code);
       if (!isVerified) {
-          return res.status(400).json({ error: 'Verification failed. Please ensure you have posted the correct code on Twitter.' });
+          return res.json({ error: 'Verification failed. Please ensure you have posted the correct code on Twitter.' });
       }
   
       const now = Date.now();
