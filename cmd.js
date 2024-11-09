@@ -205,10 +205,12 @@ async function handleTaskCommand(message, args, context) {
 
     const newTaskCode = generateUniqueCode();
     subscriptionCodes[userId].code = newTaskCode;
+
+    
     saveSubscriptionCodes();
 
     message.reply(`Please post this text on X/Twitter to complete your task: \n
-        "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}. Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA" \n\n
+        "I am participating in the Noma protocol bootstrap event `🚀` Unique code: ${newTaskCode} `🍀` Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA" \n\n
         Once done, use the "@BootstrapBot verify task" command to complete the process`);
 
     console.log(`Task generated for user ${userId} with code ${newTaskCode}`);
@@ -251,8 +253,12 @@ async function handleVerifyTaskCommand(message, args, context) {
 
     const isVerified = await checkTwitterPostForCode(twitterHandle, code);
     if (isVerified) {
+        // Update balance and lastTask
         subscription.lastTask = now;
         subscription.balance = (subscription.balance || 0) + 1;
+
+        // Explicitly update subscriptionCodes[userId]
+        subscriptionCodes[userId] = subscription;        
         saveSubscriptionCodes();
 
         message.reply('Verified successfully.');
