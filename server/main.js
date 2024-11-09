@@ -121,13 +121,12 @@ app.get('/task', (req, res) => {
     saveSubscriptionData();
   
     res.json({
-      message: `Task generated successfully 🙌 Please post this text on X/Twitter to complete your task: 
+        message: `Task generated successfully 🙌 Please post this text on X/Twitter to complete your task: 
+            
+                          "I am participating in the Noma protocol bootstrap event \`${"🚀"}\` Unique code: ${newTaskCode}. \`${"🍀"}\` Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA"`,
+        taskCode: newTaskCode
+      });
       
-                    "I am participating in the Noma protocol bootstrap event. Unique code: ${newTaskCode}.
-                    
-                    #DeFi #Ethereum"`,
-      taskCode: newTaskCode
-    });
   });
   
 
