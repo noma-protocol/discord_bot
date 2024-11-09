@@ -4,10 +4,12 @@ const path = require('path');
 const cors = require("cors"); 
 const crypto = require('crypto')
 const { TwitterApi } = require('twitter-api-v2');
+// Load configuration from config.js
+const config = require('../config');
 
 const app = express();
 const PORT = 3000;
-const taskCooldown = 86400 * 1000; // 24 hours in milliseconds
+const taskCooldown = config.taskCooldown;
 
 app.use(cors({
     origin: ['http://localhost:5173', 'https://noma.money'],
