@@ -119,11 +119,13 @@ app.get('/task', (req, res) => {
   
     // Save updated subscription data
     saveSubscriptionData();
-  
+
+    const msg = 'Please post this text on X/Twitter to complete your task: \n ' +
+        '"I am participating in the Noma protocol bootstrap event 🚀 Unique code: ' + newTaskCode + ' 🍀 Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA" \n\n ' +
+        ' Once done, use the "@BootstrapBot verify task" command to complete the process'
+
     res.json({
-        message: `Task generated successfully 🙌 Please post this text on X/Twitter to complete your task: 
-            
-                          "I am participating in the Noma protocol bootstrap event \`${"🚀"}\` Unique code: ${newTaskCode}. \`${"🍀"}\` Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA"`,
+        message: msg,
         taskCode: newTaskCode
       });
       
