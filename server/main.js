@@ -168,7 +168,6 @@ app.get('/task', (req, res) => {
     // Generate a new unique code for the task
     const newTaskCode = generateUniqueCode();
     subscription.code = newTaskCode;
-    subscription.lastTask = now;
   
     // Save updated subscription data
     saveSubscriptionData();
