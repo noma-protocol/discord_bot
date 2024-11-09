@@ -10,6 +10,8 @@ const config = require('../config');
 const app = express();
 const PORT = 3000;
 const taskCooldown = config.taskCooldown;
+// Initialize a variable to track the last Twitter API call time for throttling
+let lastTwitterCallTime = 0;
 
 app.use(cors({
     origin: ['http://localhost:5173', 'https://noma.money'],
