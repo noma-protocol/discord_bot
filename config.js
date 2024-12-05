@@ -8,9 +8,15 @@ module.exports = {
         appSecret: process.env.TWITTER_APP_SECRET,
         accessToken: process.env.TWITTER_ACCESS_TOKEN,
         accessSecret: process.env.TWITTER_ACCESS_SECRET,
-        bearerToken: "AAAAAAAAAAAAAAAAAAAAAMMhwgEAAAAA0EyUZxoGGPmUO3ETG9vxzOR%2FK8Y%3DWzimgkpFIp5zBdr212ons10e8gOomZzJHKR9SFRxD3lyneMUDR"
+        bearerToken: process.env.TWITTER_BEARER_TOKEN
     },
     chanId: '1303781041655513229',
+    monitoredChannels: [
+        "1252388983514726500", 
+        "1252416316921610320", 
+        "1303781041655513229", 
+        "1252356104055291975"
+    ],
     serverIDs: ["1252348309813596191", "1106982563853111296"],
     contractABI, // Add the ABI to the exported configuration
     contractAddress: 0x0000000000000000000000000000,
