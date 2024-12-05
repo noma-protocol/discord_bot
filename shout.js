@@ -20,41 +20,40 @@ const client = new Client({
 client.login(config.discordToken).catch(console.error);
 
 // When the bot is ready
-client.once('ready', () => {
-  console.log(`${client.user.tag} has logged in.`);
-});
-
+client.once('ready', async () => {
+    // Fetch all members for all guilds the bot is in
+    for (const [id, guild] of client.guilds.cache) {
+      await guild.members.fetch();
+    }
+    console.log(`${client.user.tag} has logged in and fetched all members.`);
+  });
+  
 // Event listener for role changes
 client.on('guildMemberUpdate', (oldMember, newMember) => {
-  // Check if roles have been changed
-  const oldRoles = oldMember.roles.cache;
-  const newRoles = newMember.roles.cache;
-
-  // Compare the size of old and new roles to determine changes
-  if (oldRoles.size !== newRoles.size) {
+    const oldRoles = oldMember.roles.cache;
+    const newRoles = newMember.roles.cache;
+  
+    console.log("Old Roles:", oldRoles.map(r => r.name));
+    console.log("New Roles:", newRoles.map(r => r.name));
+  
+    // Determine added/removed roles
     const addedRoles = newRoles.filter(role => !oldRoles.has(role.id));
     const removedRoles = oldRoles.filter(role => !newRoles.has(role.id));
-
-    // Fetch the channel where you want to send the notification
+  
     const channel = newMember.guild.channels.cache.get(CHANNEL_ID);
-    if (!channel) {
-      console.error(`Channel with ID ${CHANNEL_ID} not found.`);
-      return;
-    }
-
+    if (!channel) return console.error(`Channel with ID ${CHANNEL_ID} not found.`);
+  
     if (addedRoles.size > 0) {
-      const addedRolesList = addedRoles.map(role => role.name).join(', ');
-      console.log(`${newMember.user.tag} was given roles: ${addedRolesList}`);
-      channel.send(`${newMember.user.tag} was given roles: ${addedRolesList}`);
+      const addedList = addedRoles.map(role => role.name).join(', ');
+      channel.send(`${newMember.user.tag} was given roles: ${addedList}`);
     }
-
+  
     if (removedRoles.size > 0) {
-      const removedRolesList = removedRoles.map(role => role.name).join(', ');
-      console.log(`${newMember.user.tag} lost roles: ${removedRolesList}`);
-      channel.send(`${newMember.user.tag} lost roles: ${removedRolesList}`);
+      const removedList = removedRoles.map(role => role.name).join(', ');
+      channel.send(`${newMember.user.tag} lost roles: ${removedList}`);
     }
-  }
-});
+  });
+  
 
 // Handle any errors
 client.on('error', console.error);
