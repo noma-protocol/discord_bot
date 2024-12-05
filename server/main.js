@@ -172,7 +172,7 @@ app.get('/task', (req, res) => {
     // Save updated subscription data
     saveSubscriptionData();
 
-    const msg = '"I am participating in the Noma protocol bootstrap event 🚀 Unique code: ' + newTaskCode + ' 🍀 Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA" \n\n ';
+    const msg = 'I am participating in the Noma protocol bootstrap event 🚀 Unique code: ' + newTaskCode + ' 🍀 Follow Noma on X/Twitter x.com/nomaprotocol and join the Discord community discord.gg/nomaprotocol #Base #Ethereum #DeFi $NOMA \n\n ';
     res.json({
         message: msg,
         taskCode: newTaskCode
