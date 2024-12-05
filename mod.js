@@ -4,7 +4,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const config = require('./config');
 
 // Bot Token and Configurations
-const BANNED_KEYWORDS = ['airdrop', 'subscribe', 'job offer', "earn", "win"]; // Add more keywords if needed
+const BANNED_KEYWORDS = ['airdrop', 'subscribe', 'job offer', 'earn', 'win']; // Add more keywords if needed
 const monitoredChannels = config.monitoredChannels; // Array of channel IDs
 
 // Initialize Discord Client
@@ -26,7 +26,7 @@ function containsProhibitedContent(messageContent) {
         messageContent.toLowerCase().includes(keyword)
     );
 
-    return containsURL && containsKeyword;
+    return containsURL || containsKeyword; // Changed to logical OR for flexibility
 }
 
 // Event Listener: Bot Ready
@@ -45,11 +45,15 @@ client.on('messageCreate', async (message) => {
     // Check for prohibited content
     if (containsProhibitedContent(message.content)) {
         try {
+            // Delete the message
+            await message.delete();
+            console.log(`Deleted message from ${message.author.tag}: "${message.content}"`);
+
             // Ban the user
             await message.guild.members.ban(message.author, { reason: 'Posted prohibited content' });
             console.log(`Banned user ${message.author.tag} for posting prohibited content.`);
         } catch (error) {
-            console.error(`Failed to ban user ${message.author.tag}:`, error);
+            console.error(`Failed to delete message or ban user ${message.author.tag}:`, error);
         }
     }
 });
