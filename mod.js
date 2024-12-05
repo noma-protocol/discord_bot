@@ -26,7 +26,7 @@ function containsProhibitedContent(messageContent) {
         messageContent.toLowerCase().includes(keyword)
     );
 
-    return containsURL || containsKeyword;
+    return containsURL && containsKeyword;
 }
 
 // Event Listener: Bot Ready
