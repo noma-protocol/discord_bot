@@ -11,6 +11,7 @@ module.exports = {
         bearerToken: process.env.TWITTER_BEARER_TOKEN
     },
     userToken: process.env.USER_TOKEN,
+    userToken2: process.env.USER_TOKEN_2,
     chanId: '1303781041655513229',
     monitoredChannels: [
         "1252388983514726500", 
