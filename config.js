@@ -12,6 +12,7 @@ module.exports = {
     },
     userToken: process.env.USER_TOKEN,
     userToken2: process.env.USER_TOKEN_2,
+    userToken3: process.env.USER_TOKEN_3,
     chanId: '1303781041655513229',
     monitoredChannels: [
         "1252388983514726500", 
