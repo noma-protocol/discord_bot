@@ -49,6 +49,6 @@ client.once('ready', async () => {
 });
 
 // Login to Discord
-client.login(config.userToken2).catch((err) => {
+client.login(config.userToken3).catch((err) => {
     console.error('Failed to login:', err);
 });
