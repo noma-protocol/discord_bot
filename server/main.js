@@ -20,6 +20,9 @@ app.use(cors({
     credentials: false
 }));
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 // Twitter API credentials from the configuration
 const twitterClient = new TwitterApi({
     appKey: config.twitterApi.appKey,
@@ -30,6 +33,10 @@ const twitterClient = new TwitterApi({
 
 // Path to your JSON file
 const dataFilePath = path.join(__dirname, '../data/subscriptionCodes.json');
+
+// Path to the JSON file for storing referrals
+const referralFilePath = path.join(__dirname, '../data/referrals.json');
+
 // In-memory storage for subscription codes, loaded from disk
 let subscriptionData = loadSubscriptionData();
 
@@ -63,6 +70,30 @@ function saveSubscriptionData() {
     } catch (error) {
         console.error('Error saving subscription codes:', error);
     }
+}
+
+// Function to load referrals from file
+function loadReferrals() {
+    if (fs.existsSync(referralFilePath)) {
+        const data = fs.readFileSync(referralFilePath, 'utf-8');
+        return JSON.parse(data);
+    }
+    return {};
+}
+
+// Function to save referrals to file
+function saveReferrals(referrals) {
+    try {
+        fs.writeFileSync(referralFilePath, JSON.stringify(referrals, null, 2));
+        console.log('Referrals saved successfully.');
+    } catch (error) {
+        console.error('Error saving referrals:', error);
+    }
+}
+
+// Function to generate a unique referral code
+function generateReferralCode() {
+    return crypto.randomBytes(4).toString('hex'); // Generates an 8-character hex code
 }
 
 /**
@@ -233,6 +264,35 @@ app.get('/task', (req, res) => {
   
       console.log(`Task verified for user with address ${address}. Balance updated to ${subscription.balance}`);
   });
+
+
+// POST endpoint to create a referral
+app.post('/referral', (req, res) => {
+    const { address } = req.body;
+
+    if (!address) {
+        return res.status(400).json({ error: 'Ethereum address is required' });
+    }
+
+    // Load current referrals
+    const referrals = loadReferrals();
+
+    // Check if the address already has a referral code
+    if (referrals[address]) {
+        return res.json({ message: 'Referral code already exists for this address', referralCode: referrals[address] });
+    }
+
+    // Generate a new referral code
+    const referralCode = generateReferralCode();
+
+    // Store the new referral
+    referrals[address] = referralCode;
+
+    // Save referrals to file
+    saveReferrals(referrals);
+
+    res.json({ message: 'Referral code created successfully', referralCode });
+});
   
 // Start the server
 app.listen(PORT, () => {

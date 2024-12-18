@@ -4,7 +4,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const config = require('./config');
 
 // Bot Token and Configurations
-const BANNED_KEYWORDS = ['airdrop', 'subscribe', 'job offer', 'earn', 'win']; // Add more keywords if needed
+const BANNED_KEYWORDS = ['airdrop', 'subscribe', 'job offer', 'earn', 'win', 'recover', 'seed phrase', 'send to Binance']; // Add more keywords if needed
 const monitoredChannels = config.monitoredChannels; // Array of channel IDs
 
 // Initialize Discord Client
