@@ -4,8 +4,9 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const config = require('./config');
 
 // Bot Token and Configurations
-const BANNED_KEYWORDS = ['airdrop', 'subscribe', 'job offer', 'earn', 'win', 'recover', 'seed phrase', 'send to Binance']; // Add more keywords if needed
+const BANNED_KEYWORDS = config.bannedWords; // Array of banned keywords
 const monitoredChannels = config.monitoredChannels; // Array of channel IDs
+const WHITELISTED_USERS =  config.whitelistedUsers; // Array of whitelisted user IDs
 
 // Initialize Discord Client
 const client = new Client({
@@ -38,6 +39,9 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
     // Ignore bot messages
     if (message.author.bot) return;
+
+    // Ignore whitelisted users
+    if (WHITELISTED_USERS.includes(message.author.id)) return;
 
     // Check if the message is in one of the monitored channels
     if (!monitoredChannels.includes(message.channel.id)) return;

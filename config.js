@@ -21,9 +21,12 @@ module.exports = {
         "1252356104055291975"
     ],
     serverIDs: ["1252348309813596191", "1106982563853111296"],
+    whitelistedUsers: [
+        "1219798412287938691",
+    ],
     contractABI, // Add the ABI to the exported configuration
     contractAddress: 0x0000000000000000000000000000,
     restrictionDate: '2024-11-07T00:00:00Z',
-    taskCooldown: 86400000 // 24 hours in milliseconds
-
+    taskCooldown: 86400000, // 24 hours in milliseconds,
+    bannedWords: ['airdrop', 'subscribe', 'job offer', 'earn', 'win', 'recover', 'seed phrase', 'send to Binance']
 };
