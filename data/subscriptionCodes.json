@@ -1,14 +1,20 @@
 {
   "1219798412287938691": {
-    "code": "8e6b239b",
-    "twitterHandle": "0xSufist",
-    "verified": false,
-    "address": "0x5Df089ff2eaB44684717D876077D8C3a7E951819"
+    "code": "757f9300",
+    "twitterHandle": "0xsufist",
+    "verified": true,
+    "balance": 1,
+    "triviaBalance": 8,
+    "lastTask": 1731166711818,
+    "address": "0x9D3B9140e988FCce4379882717200f69Ee21AfDc"
   },
-  "1250260269276332054": {
-    "code": "05d51e83",
-    "twitterHandle": "1e_18",
+  "296497346689105930": {
+    "code": "b30c0f32",
+    "twitterHandle": "akshayyuk",
     "verified": false,
-    "address": "0x12e30FcC16B741a08cCf066074F0547F3ce79F32"
+    "balance": 0,
+    "triviaBalance": 0,
+    "lastTask": null,
+    "address": "0x870fb21CbDb0B8731368C4f21aEAe7b1F4Fc80A6"
   }
 }
