@@ -83,7 +83,8 @@ async function handleSubscribeCommand(message, args, context) {
             code: uniqueCode, 
             twitterHandle, 
             verified: false, 
-            balance: 0, 
+            balance: 0,
+            triviaBalance: 0, 
             lastTask: null, 
             address: ethereumAddress 
         };
@@ -255,7 +256,7 @@ async function handleVerifyTaskCommand(message, args, context) {
     if (isVerified) {
         // Update balance and lastTask
         subscription.lastTask = now;
-        subscription.balance = (subscription.balance || 0) + 1;
+        subscription.balance = (subscription.balance || 0) + 1000;
 
         // Explicitly update subscriptionCodes[userId]
         subscriptionCodes[userId] = subscription;        
