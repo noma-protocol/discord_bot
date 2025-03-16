@@ -16,5 +16,65 @@
     "triviaBalance": 0,
     "lastTask": null,
     "address": "0x870fb21CbDb0B8731368C4f21aEAe7b1F4Fc80A6"
+  },
+  "1250260269276332054": {
+    "code": "51c53fae",
+    "twitterHandle": "1e_18",
+    "verified": false,
+    "address": "0x12e30FcC16B741a08cCf066074F0547F3ce79F32"
+  },
+  "1270395162937262090": {
+    "code": "e3429af5",
+    "twitterHandle": "0xshelby_",
+    "verified": true,
+    "balance": 1,
+    "triviaBalance":0,
+    "lastTask": 1731079857195,
+    "address": "0xfb4c7db81d446364eacfb9e0bc7886ef388f0505"
+  },
+  "880073797510762547": {
+    "code": "c48059e3",
+    "twitterHandle": "yeahyea33454444",
+    "verified": true,
+    "balance": 1,
+    "triviaBalance": 0,	    
+    "lastTask": 1731168303041,
+    "address": "0x5D58EDC7a7C91239Ec2FD56a646679780886323c"
+  },
+  "1247037353432973312": {
+    "code": "a1180fc0",
+    "twitterHandle": "JensyAntonio",
+    "verified": true,
+    "balance": 1,
+    "triviaBalance":0,
+    "lastTask": 1732293309834,
+    "address": "0x5AcF8A87770117055DaB2bD2F9e149A8Fe058711"
+  },
+  "212296028769091584": {
+    "code": "90a518c1",
+    "twitterHandle": "catincryptoland",
+    "verified": true,
+    "balance": 0,
+    "triviaBalance":0,
+    "lastTask": null,
+    "address": "0xba37b119852b2e35c47c3849fa2b260391eca2cb"
+  },
+  "296497346689105930": {
+    "code": "97c1b4de",
+    "twitterHandle": "0xWinterSoldier",
+    "verified": false,
+    "balance": 0,
+    "triviaBalance" :0,
+    "lastTask": null,
+    "address": "0x870fb21CbDb0B8731368C4f21aEAe7b1F4Fc80A6"
+  },
+  "887253877387305000": {
+    "code": "aac58db9",
+    "twitterHandle": "Marco80R",
+    "verified": false,
+    "balance": 0,
+    "triviaBalance":0,
+    "lastTask": null,
+    "address": "0x7a2ef31fedea178e577316e6bead4a09c1dcd03a"
   }
 }
