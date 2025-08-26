@@ -101,5 +101,58 @@
             { "question": "What is the man-in-the-middle attack?", "answer": "An attack where an attacker intercepts and alters communication between two parties" },
             { "question": "What is perfect forward secrecy?", "answer": "A property ensuring that session keys cannot be compromised if a long-term key is leaked" }
         ]
+    },
+    {
+    "roleName": "Monad Blockchain Expert",
+    "roleColor": 9,
+    "rolePoints": 2,
+    "questions": [
+        { "question": "What is Monad?", "answer": "A new high-performance Layer 1 blockchain" },
+        { "question": "Who created Monad?", "answer": "Monad Labs" },
+        { "question": "What consensus mechanism does Monad use?", "answer": "Proof of Stake (PoS)" },
+        { "question": "What programming language are smart contracts on Monad written in?", "answer": "Solidity, fully EVM-compatible" },
+        { "question": "Is Monad EVM-compatible?", "answer": "Yes, it is fully EVM-compatible" },
+        { "question": "What is the block time of Monad?", "answer": "About 1 second" },
+        { "question": "What is the main advantage of Monad over Ethereum?", "answer": "Higher throughput and lower latency" },
+        { "question": "Does Monad support existing Ethereum tools?", "answer": "Yes, most Ethereum tools and wallets work with Monad" },
+        { "question": "What type of applications can be built on Monad?", "answer": "Any EVM dApps such as DeFi, NFTs, DAOs" },
+        { "question": "What is the native token of Monad?", "answer": "MON" }
+    ]
+    },
+    {
+    "roleName": "Monad Blockchain Expert",
+    "roleColor": 9,
+    "rolePoints": 4,
+    "questions": [
+        { "question": "How does Monad achieve high throughput?", "answer": "By using parallel execution of transactions and efficient pipelining" },
+        { "question": "What transaction execution model does Monad use?", "answer": "Optimistic parallel execution with deterministic ordering" },
+        { "question": "What is the estimated transactions per second (TPS) goal of Monad?", "answer": "Around 10,000 TPS" },
+        { "question": "What consensus protocol is Monad’s Proof of Stake based on?", "answer": "It uses HotStuff-style BFT consensus" },
+        { "question": "How does Monad handle transaction ordering?", "answer": "It separates consensus ordering from execution to improve efficiency" },
+        { "question": "Does Monad require changes to Solidity code?", "answer": "No, existing Solidity code can run unmodified" },
+        { "question": "What makes Monad different from other EVM chains like BSC or Avalanche?", "answer": "Monad uses deep parallelization and deterministic execution for higher performance" },
+        { "question": "How does Monad achieve low latency finality?", "answer": "Through a 1-second block time and optimized consensus" },
+        { "question": "What role do validators play in Monad?", "answer": "They propose, validate, and finalize blocks under Proof of Stake" },
+        { "question": "How does Monad maintain Ethereum compatibility?", "answer": "By fully replicating EVM bytecode execution and Ethereum’s account model" }
+    ]
+    },
+    {
+    "roleName": "Monad Blockchain Expert",
+    "roleColor": 9,
+    "rolePoints": 6,
+    "questions": [
+        { "question": "What is Monad’s gas model based on?", "answer": "It is similar to Ethereum’s EVM gas model but optimized for parallel execution" },
+        { "question": "How does Monad avoid double-spending during parallel execution?", "answer": "By detecting conflicts between transactions and re-executing conflicting ones serially" },
+        { "question": "What is the main innovation of Monad’s execution layer?", "answer": "Optimistic parallel execution with deferred conflict resolution" },
+        { "question": "How does Monad ensure determinism in transaction results?", "answer": "By reordering conflicting transactions consistently across validators" },
+        { "question": "What incentive mechanism secures Monad’s Proof of Stake?", "answer": "Validators stake MON tokens and risk slashing for misbehavior" },
+        { "question": "What happens if a validator in Monad equivocates?", "answer": "They can be slashed and lose part of their stake" },
+        { "question": "How are validator rewards distributed in Monad?", "answer": "Through block rewards and transaction fees proportional to stake" },
+        { "question": "What data structure does Monad use for state storage?", "answer": "It uses a Merkle-Patricia Trie, just like Ethereum" },
+        { "question": "How does Monad achieve faster finality compared to Ethereum?", "answer": "It uses 1-second block times and HotStuff consensus for fast confirmation" },
+        { "question": "What challenge does Monad solve compared to other EVM-compatible L1s?", "answer": "It provides high throughput without sacrificing EVM compatibility or security" }
+    ]
     }
+
+
 ]
